@@ -5,12 +5,5 @@
       "src": "package.json",
       "use": "@vercel/next"
     }
-  ],
-  "routes": [
-    {
-      "src": "/weekdays",
-      "dest": "/api/datas/index.js",
-      "methods": ["POST", "OPTIONS"]
-    }
   ]
 } 
