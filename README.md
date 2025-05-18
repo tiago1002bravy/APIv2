@@ -5,7 +5,7 @@ Este repositório contém uma coleção de APIs úteis, cada uma com sua própri
 ## APIs Disponíveis
 
 ### 1. API de Datas
-Endpoint: `https://apisv2-mdgcvxb2b-bravy.vercel.app/weekdays`
+Endpoint: `https://apisv2.vercel.app/api/weekdays`
 
 Processa uma data e retorna informações sobre o dia da semana.
 
@@ -19,15 +19,15 @@ Processa uma data e retorna informações sobre o dia da semana.
 **Response:**
 ```json
 {
-    "nome_dia_semana": "Domingo",
-    "numero_dia_semana": 0,
-    "numero_dia_mes": 18
+    "dia": "0",
+    "dia_semana": "Domingo",
+    "dia_mes": 18
 }
 ```
 
 **Exemplo de Uso:**
 ```bash
-curl -X POST "https://apisv2-mdgcvxb2b-bravy.vercel.app/weekdays" \
+curl -X POST "https://apisv2.vercel.app/api/weekdays" \
      -H "Content-Type: application/json" \
      -d '{"data": "2025-05-18T18:05:47.934Z"}'
 ```
@@ -35,10 +35,9 @@ curl -X POST "https://apisv2-mdgcvxb2b-bravy.vercel.app/weekdays" \
 ## Estrutura do Projeto
 
 ```
-api/
-├── datas/           # API de processamento de datas
-│   └── index.js     # Endpoint /weekdays
-└── ...             # Outras APIs serão adicionadas aqui
+pages/
+└── api/
+    └── weekdays.js    # Endpoint /api/weekdays
 ```
 
 ## Requisitos
@@ -65,24 +64,14 @@ npm run dev
 yarn dev
 ```
 
+A API estará disponível em `http://localhost:3000/api/weekdays`
+
 ## Deploy
 
-Para fazer deploy na Vercel:
-```bash
-npm run deploy
-# ou
-yarn deploy
-```
-
-## Como Adicionar uma Nova API
-
-1. Crie um novo diretório em `api/` com o nome da sua API
-2. Crie um arquivo `index.js` dentro do diretório
-3. Adicione a rota no arquivo `vercel.json`
-4. Documente a API no README.md
+O deploy é automático na Vercel quando há push para a branch main.
 
 ## Tecnologias Utilizadas
 
-- Node.js
+- Next.js
 - Vercel
-- date-fns (para manipulação de datas) 
+- Node.js 
