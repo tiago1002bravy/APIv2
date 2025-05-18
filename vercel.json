@@ -9,11 +9,8 @@
   "routes": [
     {
       "src": "/weekdays",
-      "dest": "/api/datas/index.js"
-    },
-    {
-      "src": "/api/(.*)",
-      "dest": "/api/$1"
+      "dest": "/api/datas/index.js",
+      "methods": ["POST", "OPTIONS"]
     }
   ]
 } 

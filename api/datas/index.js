@@ -1,83 +1,102 @@
-const { format, parseISO, getDay, getDate } = require('date-fns');
-const { ptBR } = require('date-fns/locale');
+const DIAS_SEMANA = [
+  "Domingo",
+  "Segunda-feira",
+  "Terça-feira",
+  "Quarta-feira",
+  "Quinta-feira",
+  "Sexta-feira",
+  "Sábado"
+];
 
-module.exports = async (req, res) => {
-  console.log('Método:', req.method);
-  console.log('Headers:', req.headers);
-  console.log('Body:', req.body);
-
-  // Configurar CORS de forma mais permissiva para debug
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', '*');
-  res.setHeader('Access-Control-Allow-Headers', '*');
-  res.setHeader('Access-Control-Allow-Credentials', 'true');
-
-  // Responder a requisições OPTIONS (preflight)
-  if (req.method === 'OPTIONS') {
-    console.log('Respondendo a OPTIONS');
-    res.status(200).end();
-    return;
-  }
-
-  // Verificar se é uma requisição POST
-  if (req.method !== 'POST') {
-    console.log('Método não permitido:', req.method);
-    return res.status(405).json({ 
-      error: 'Método não permitido',
-      method: req.method,
-      allowed: 'POST'
-    });
-  }
-
+export async function POST(req) {
   try {
-    const { data } = req.body;
-    console.log('Data recebida:', data);
+    const body = await req.json();
+    const { data } = body;
 
-    if (!data) {
-      console.log('Data não fornecida');
-      return res.status(400).json({ error: 'Data não fornecida' });
+    if (!data || typeof data !== "string") {
+      return new Response(
+        JSON.stringify({ erro: "Data não fornecida" }),
+        { 
+          status: 400,
+          headers: {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'POST, OPTIONS',
+            'Access-Control-Allow-Headers': 'Content-Type'
+          }
+        }
+      );
     }
 
-    // Converter a string de data para objeto Date
-    const dataObj = parseISO(data);
-    console.log('Data convertida:', dataObj);
-
-    // Verificar se a data é válida
+    const dataObj = new Date(data);
+    
     if (isNaN(dataObj.getTime())) {
-      console.log('Data inválida:', data);
-      return res.status(400).json({ error: 'Formato de data inválido' });
+      return new Response(
+        JSON.stringify({ erro: "Data inválida" }),
+        { 
+          status: 400,
+          headers: {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'POST, OPTIONS',
+            'Access-Control-Allow-Headers': 'Content-Type'
+          }
+        }
+      );
     }
 
-    // Mapeamento dos dias da semana em português
-    const diasSemana = {
-      0: 'Domingo',
-      1: 'Segunda-feira',
-      2: 'Terça-feira',
-      3: 'Quarta-feira',
-      4: 'Quinta-feira',
-      5: 'Sexta-feira',
-      6: 'Sábado'
-    };
+    const diaSemana = dataObj.getDay();
+    const diaMes = dataObj.getDate();
 
-    // Obter o número do dia da semana (0-6, onde 0 é domingo)
-    const numeroDiaSemana = getDay(dataObj);
-    console.log('Número do dia da semana:', numeroDiaSemana);
-
-    const response = {
-      nome_dia_semana: diasSemana[numeroDiaSemana],
-      numero_dia_semana: numeroDiaSemana,
-      numero_dia_mes: getDate(dataObj)
-    };
-    console.log('Resposta:', response);
-
-    // Retornar a resposta
-    return res.status(200).json(response);
-
+    return new Response(
+      JSON.stringify({
+        dia: diaSemana.toString(),
+        dia_semana: DIAS_SEMANA[diaSemana],
+        dia_mes: diaMes
+      }),
+      { 
+        status: 200,
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'POST, OPTIONS',
+          'Access-Control-Allow-Headers': 'Content-Type'
+        }
+      }
+    );
   } catch (error) {
-    console.error('Erro detalhado:', error);
-    return res.status(500).json({ 
-      error: 'Erro interno do servidor',
-      details: error.message
+    return new Response(
+      JSON.stringify({ erro: "Erro ao processar a requisição" }),
+      { 
+        status: 500,
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'POST, OPTIONS',
+          'Access-Control-Allow-Headers': 'Content-Type'
+        }
+      }
+    );
+  }
+}
+
+// Handler para a Vercel
+export default async function handler(req, res) {
+  if (req.method === 'OPTIONS') {
+    return new Response(null, {
+      status: 200,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'POST, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type'
+      }
     });
   }
-}; 
+
+  if (req.method === 'POST') {
+    const response = await POST(req);
+    return res.status(response.status).json(JSON.parse(response.body));
+  }
+
+  return res.status(405).json({ erro: 'Método não permitido' });
+} 
