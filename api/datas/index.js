@@ -2,38 +2,49 @@ const { format, parseISO, getDay, getDate } = require('date-fns');
 const { ptBR } = require('date-fns/locale');
 
 module.exports = async (req, res) => {
-  // Configurar CORS
-  res.setHeader('Access-Control-Allow-Credentials', true);
+  console.log('Método:', req.method);
+  console.log('Headers:', req.headers);
+  console.log('Body:', req.body);
+
+  // Configurar CORS de forma mais permissiva para debug
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,POST');
-  res.setHeader(
-    'Access-Control-Allow-Headers',
-    'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version'
-  );
+  res.setHeader('Access-Control-Allow-Methods', '*');
+  res.setHeader('Access-Control-Allow-Headers', '*');
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
 
   // Responder a requisições OPTIONS (preflight)
   if (req.method === 'OPTIONS') {
+    console.log('Respondendo a OPTIONS');
     res.status(200).end();
     return;
   }
 
   // Verificar se é uma requisição POST
   if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Método não permitido' });
+    console.log('Método não permitido:', req.method);
+    return res.status(405).json({ 
+      error: 'Método não permitido',
+      method: req.method,
+      allowed: 'POST'
+    });
   }
 
   try {
     const { data } = req.body;
+    console.log('Data recebida:', data);
 
     if (!data) {
+      console.log('Data não fornecida');
       return res.status(400).json({ error: 'Data não fornecida' });
     }
 
     // Converter a string de data para objeto Date
     const dataObj = parseISO(data);
+    console.log('Data convertida:', dataObj);
 
     // Verificar se a data é válida
     if (isNaN(dataObj.getTime())) {
+      console.log('Data inválida:', data);
       return res.status(400).json({ error: 'Formato de data inválido' });
     }
 
@@ -50,16 +61,23 @@ module.exports = async (req, res) => {
 
     // Obter o número do dia da semana (0-6, onde 0 é domingo)
     const numeroDiaSemana = getDay(dataObj);
+    console.log('Número do dia da semana:', numeroDiaSemana);
 
-    // Retornar a resposta
-    return res.status(200).json({
+    const response = {
       nome_dia_semana: diasSemana[numeroDiaSemana],
       numero_dia_semana: numeroDiaSemana,
       numero_dia_mes: getDate(dataObj)
-    });
+    };
+    console.log('Resposta:', response);
+
+    // Retornar a resposta
+    return res.status(200).json(response);
 
   } catch (error) {
-    console.error('Erro:', error);
-    return res.status(500).json({ error: 'Erro interno do servidor' });
+    console.error('Erro detalhado:', error);
+    return res.status(500).json({ 
+      error: 'Erro interno do servidor',
+      details: error.message
+    });
   }
 }; 
