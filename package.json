@@ -1,0 +1,18 @@
+{
+  "name": "api-datas",
+  "version": "1.0.0",
+  "description": "API para processamento de datas",
+  "main": "api/index.js",
+  "scripts": {
+    "dev": "vercel dev",
+    "deploy": "vercel deploy"
+  },
+  "dependencies": {
+    "@vercel/node": "^3.0.0",
+    "date-fns": "^2.30.0",
+    "date-fns-tz": "^2.0.0"
+  },
+  "devDependencies": {
+    "vercel": "^32.0.0"
+  }
+} 
